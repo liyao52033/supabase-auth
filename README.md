@@ -27,4 +27,98 @@ edgeone pages link
 ```sh
 edgeone pages deploy -n supabase
 ```
-supabase 为 edgeone pages项目名称
+edgeone pages deploy -n supabase
+supabase 为 edgeone pages项目名称，如果只是部署dist可以在后面加./dist
+
+## 前端使用
+### 注册接口
+```js
+   async function register() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // 简单的表单验证
+      if (!email || !password) {
+            console.log('请填写邮箱和密码', false);
+            return;
+      }
+
+      try {
+            const res = await fetch(baseUrl + 'register', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+               console.log('注册成功！');
+               // 清空输入框
+               document.getElementById('email').value = '';
+               document.getElementById('password').value = '';
+            } else {
+               console.log(data.error || '注册失败，请重试', false);
+            }
+      } catch (error) {
+            console.log('网络错误，请检查连接', false);
+      }
+   }
+```
+### 登录接口
+```js
+   async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // 简单的表单验证
+      if (!email || !password) {
+            console.log('请填写邮箱和密码', false);
+            return;
+      }
+
+      try {
+            const res = await fetch(baseUrl + 'login', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.session) {
+               localStorage.setItem('token', data.session.access_token);
+               console.log('登录成功！');
+            } else {
+               console.log(data.error || '登录失败，账号或密码错误', false);
+            }
+      } catch (error) {
+            console.log('网络错误，请检查连接', false);
+            console.error('登录错误:', error); // 后台日志仍保留
+      }
+   }
+```
+### 用户信息接口
+```js
+   async function getUser() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+            console.log('请先登录', false);
+            return;
+      }
+
+      try {
+            const res = await fetch(baseUrl + 'getUser', {
+               headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+               console.log(`欢迎回来，${data.user.email}`);
+            } else {
+               console.log('获取用户信息失败', false);
+            }
+      } catch (error) {
+            console.log('网络错误，请检查连接', false);
+            console.error('获取用户错误:', error); 
+      }
+   }
+```

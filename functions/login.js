@@ -5,23 +5,50 @@ const supabaseUrl = env.SUPABASE_URL;
 const supabaseKey = env.SUPABASE_ANON_KEY;
 
 export async function onRequest(context) {
+    const { request } = context;
+    const origin = request.headers.get('Origin') || request.headers.get('Referer')?.split('/').slice(0, 3).join('/') || '*';
+
+    // 处理 CORS 预检请求
+    if (request.method === 'OPTIONS') {
+        return new Response(null, {
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': origin,
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Max-Age': '86400',
+            },
+        });
+    }
+
     try {
         // 1. 检查 Supabase 配置
         if (!supabaseUrl || !supabaseKey) {
             return new Response(
                 JSON.stringify({ error: 'Supabase configuration missing' }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
+                {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': origin,
+                    }
+                }
             );
         }
 
         const supabase = createClient(supabaseUrl, supabaseKey);
-        const { request } = context;
 
         // 2. 检查请求方法（只允许 POST）
         if (request.method !== 'POST') {
             return new Response(
                 JSON.stringify({ error: 'Method not allowed, only POST is supported' }),
-                { status: 405, headers: { 'Content-Type': 'application/json' } }
+                {
+                    status: 405,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': origin,
+                    }
+                }
             );
         }
 
@@ -34,14 +61,26 @@ export async function onRequest(context) {
             if (!bodyText) {
                 return new Response(
                     JSON.stringify({ error: 'Request body is empty, please provide email and password' }),
-                    { status: 400, headers: { 'Content-Type': 'application/json' } }
+                    {
+                        status: 400,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': origin,
+                        }
+                    }
                 );
             }
             requestBody = JSON.parse(bodyText);
         } catch (parseErr) {
             return new Response(
                 JSON.stringify({ error: 'Invalid JSON format in request body', details: parseErr.message }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
+                {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': origin,
+                    }
+                }
             );
         }
 
@@ -50,7 +89,13 @@ export async function onRequest(context) {
         if (!email || !password) {
             return new Response(
                 JSON.stringify({ error: 'Email and password are required' }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
+                {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': origin,
+                    }
+                }
             );
         }
 
@@ -63,21 +108,39 @@ export async function onRequest(context) {
         if (error) {
             return new Response(
                 JSON.stringify({ error: error.message }),
-                { status: 401, headers: { 'Content-Type': 'application/json' } } // 401 更符合认证失败语义
+                {
+                    status: 401,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': origin,
+                    }
+                } // 401 更符合认证失败语义
             );
         }
 
         // 6. 成功响应
         return new Response(
             JSON.stringify(data),
-            { status: 200, headers: { 'Content-Type': 'application/json' } }
+            {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': origin,
+                }
+            }
         );
 
     } catch (err) {
         // 全局错误捕获
         return new Response(
             JSON.stringify({ error: err.message || 'Internal server error' }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
+            {
+                status: 500,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': origin,
+                }
+            }
         );
     }
 }

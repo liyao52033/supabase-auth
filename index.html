@@ -91,26 +91,34 @@
         }
 
         #message {
-            margin-top: 20px;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             padding: 12px 16px;
             border-radius: 8px;
             text-align: center;
             font-weight: 500;
-            display: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
         }
 
         .success {
             background-color: #e8f5e9;
             color: #2e7d32;
             border: 1px solid #c8e6c9;
-            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
         .error {
             background-color: #ffebee;
             color: #c62828;
             border: 1px solid #ffcdd2;
-            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>
@@ -126,22 +134,32 @@
                 <button onclick="login()">登录</button>
             </div>
             <button onclick="getUser()">获取用户信息</button>
+            <button onclick="openrepo()">github地址</button>
         </div>
         <div id="message"></div>
     </div>
 
     <script>
-        const baseUrl = '/'; // 根据部署调整
+        const baseUrl = 'https://ssl.xiaoying.org.cn/'; // 部署后的完整URL
+
+        function openrepo() {
+            window.open("https://github.com/liyao52033/supabase-auth", "_blank");
+        }
 
         // 显示提示消息
         function showMessage(text, isSuccess = true) {
             const messageEl = document.getElementById('message');
             messageEl.textContent = text;
             messageEl.className = isSuccess ? 'success' : 'error';
+            messageEl.style.opacity = '1';
 
             // 3秒后自动隐藏提示
             setTimeout(() => {
-                messageEl.className = '';
+                messageEl.style.opacity = '0';
+                setTimeout(() => {
+                    messageEl.className = '';
+                    messageEl.style.opacity = '';
+                }, 300); // 等待过渡动画完成
             }, 3000);
         }
 
