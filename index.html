@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Auth Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        #auth {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input {
+            padding: 14px 18px;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #5a6edb;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        #message {
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            display: block;
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>登录注册演示</h1>
+        <div id="auth">
+            <input type="email" id="email" placeholder="请输入邮箱" required>
+            <input type="password" id="password" placeholder="请输入密码" required>
+            <div class="button-group">
+                <button onclick="register()">注册</button>
+                <button onclick="login()">登录</button>
+            </div>
+            <button onclick="getUser()">获取用户信息</button>
+        </div>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        const baseUrl = '/'; // 根据部署调整
+
+        // 显示提示消息
+        function showMessage(text, isSuccess = true) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = isSuccess ? 'success' : 'error';
+
+            // 3秒后自动隐藏提示
+            setTimeout(() => {
+                messageEl.className = '';
+            }, 3000);
+        }
+
+        async function register() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // 简单的表单验证
+            if (!email || !password) {
+                showMessage('请填写邮箱和密码', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(baseUrl + 'register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showMessage('注册成功！');
+                    // 清空输入框
+                    document.getElementById('email').value = '';
+                    document.getElementById('password').value = '';
+                } else {
+                    showMessage(data.error || '注册失败，请重试', false);
+                }
+            } catch (error) {
+                showMessage('网络错误，请检查连接', false);
+                console.error('注册错误:', error); // 后台日志仍保留
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // 简单的表单验证
+            if (!email || !password) {
+                showMessage('请填写邮箱和密码', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(baseUrl + 'login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.session) {
+                    localStorage.setItem('token', data.session.access_token);
+                    showMessage('登录成功！');
+                } else {
+                    showMessage(data.error || '登录失败，账号或密码错误', false);
+                }
+            } catch (error) {
+                showMessage('网络错误，请检查连接', false);
+                console.error('登录错误:', error); // 后台日志仍保留
+            }
+        }
+
+        async function getUser() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showMessage('请先登录', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(baseUrl + 'getUser', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showMessage(`欢迎回来，${data.user.email}`);
+                } else {
+                    showMessage('获取用户信息失败', false);
+                }
+            } catch (error) {
+                showMessage('网络错误，请检查连接', false);
+                console.error('获取用户错误:', error); // 后台日志仍保留
+            }
+        }
+    </script>
+</body>
+
+</html>
