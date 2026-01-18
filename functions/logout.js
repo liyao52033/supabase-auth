@@ -15,6 +15,7 @@ export async function onRequest(context) {
                 'Access-Control-Allow-Origin': origin,
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Allow-Credentials': 'true',
                 'Access-Control-Max-Age': '86400',
             },
         });
@@ -27,6 +28,7 @@ export async function onRequest(context) {
                 headers: {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': origin,
+                    'Access-Control-Allow-Credentials': 'true',
                 }
             })
         }
@@ -39,20 +41,13 @@ export async function onRequest(context) {
                 headers: {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': origin,
+                    'Access-Control-Allow-Credentials': 'true',
                 }
             })
         }
 
-        const { email, password } = await request.json()
-        // 从请求头获取origin或使用环境变量中的重定向URL
-        const emailRedirectTo = `${origin}/auth/verify`
-
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password
-        }, {
-            emailRedirectTo
-        })
+        // 调用Supabase的登出API
+        const { error } = await supabase.auth.signOut()
 
         if (error) {
             return new Response(JSON.stringify({ error: error.message }), {
@@ -60,15 +55,17 @@ export async function onRequest(context) {
                 headers: {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': origin,
+                    'Access-Control-Allow-Credentials': 'true',
                 }
             })
         }
 
-        return new Response(JSON.stringify(data), {
+        return new Response(JSON.stringify({ message: 'Logged out successfully' }), {
             status: 200,
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': origin,
+                'Access-Control-Allow-Credentials': 'true',
             }
         })
     } catch (err) {
@@ -77,6 +74,7 @@ export async function onRequest(context) {
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': origin,
+                'Access-Control-Allow-Credentials': 'true',
             }
         })
     }

@@ -43,15 +43,56 @@ export async function onRequest(context) {
             })
         }
 
-        const { email, password } = await request.json()
-        // 从请求头获取origin或使用环境变量中的重定向URL
-        const emailRedirectTo = `${origin}/auth/verify`
+        // 解析请求体，获取provider和redirectTo
+        let requestBody;
+        try {
+            const bodyText = await request.text();
+            if (!bodyText) {
+                return new Response(JSON.stringify({ error: 'Request body is empty, please provide provider' }), {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': origin,
+                    }
+                });
+            }
+            requestBody = JSON.parse(bodyText);
+        } catch (parseErr) {
+            return new Response(JSON.stringify({ error: 'Invalid JSON format in request body', details: parseErr.message }), {
+                status: 400,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': origin,
+                }
+            });
+        }
 
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password
-        }, {
-            emailRedirectTo
+        const { provider } = requestBody;
+        if (!provider) {
+            return new Response(JSON.stringify({ error: 'Provider is required' }), {
+                status: 400,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': origin,
+                }
+            });
+        }
+
+        // 验证provider是否支持
+        const supportedProviders = ['google', 'github', 'facebook', 'apple', 'twitter'];
+        if (!supportedProviders.includes(provider.toLowerCase())) {
+            return new Response(JSON.stringify({ error: `Unsupported provider: ${provider}` }), {
+                status: 400,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': origin,
+                }
+            });
+        }
+
+        // 调用Supabase的第三方登录API
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: provider.toLowerCase(),
         })
 
         if (error) {

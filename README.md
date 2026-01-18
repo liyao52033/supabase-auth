@@ -33,92 +33,147 @@ supabase 为 edgeone pages项目名称，如果只是部署dist可以在后面�
 ## 前端使用
 ### 注册接口
 ```js
-   async function register() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+async function register() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-      // 简单的表单验证
-      if (!email || !password) {
-            console.log('请填写邮箱和密码', false);
-            return;
-      }
+  // 简单的表单验证
+  if (!email || !password) {
+        console.log('请填写邮箱和密码', false);
+        return;
+  }
 
-      try {
-            const res = await fetch(baseUrl + 'register', {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ email, password })
-            });
-            const data = await res.json();
+  try {
+        const res = await fetch(baseUrl + 'register', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
 
-            if (res.ok) {
-               console.log('注册成功！');
-               // 清空输入框
-               document.getElementById('email').value = '';
-               document.getElementById('password').value = '';
-            } else {
-               console.log(data.error || '注册失败，请重试', false);
-            }
-      } catch (error) {
-            console.log('网络错误，请检查连接', false);
-      }
-   }
+        if (res.ok) {
+           console.log('注册成功！');
+           // 清空输入框
+           document.getElementById('email').value = '';
+           document.getElementById('password').value = '';
+        } else {
+           console.log(data.error || '注册失败，请重试', false);
+        }
+  } catch (error) {
+        console.log('网络错误，请检查连接', false);
+  }
+}
 ```
 ### 登录接口
 ```js
-   async function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+async function login() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-      // 简单的表单验证
-      if (!email || !password) {
-            console.log('请填写邮箱和密码', false);
-            return;
-      }
+  // 简单的表单验证
+  if (!email || !password) {
+        console.log('请填写邮箱和密码', false);
+        return;
+  }
 
-      try {
-            const res = await fetch(baseUrl + 'login', {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ email, password })
-            });
-            const data = await res.json();
+  try {
+        const res = await fetch(baseUrl + 'login', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
 
-            if (res.ok && data.session) {
-               localStorage.setItem('token', data.session.access_token);
-               console.log('登录成功！');
-            } else {
-               console.log(data.error || '登录失败，账号或密码错误', false);
-            }
-      } catch (error) {
-            console.log('网络错误，请检查连接', false);
-            console.error('登录错误:', error); // 后台日志仍保留
-      }
-   }
+        if (res.ok && data.session) {
+           localStorage.setItem('token', data.session.access_token);
+           console.log('登录成功！');
+        } else {
+           console.log(data.error || '登录失败，账号或密码错误', false);
+        }
+  } catch (error) {
+        console.log('网络错误，请检查连接', false);
+        console.error('登录错误:', error); // 后台日志仍保留
+  }
+}
 ```
 ### 用户信息接口
 ```js
-   async function getUser() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-            console.log('请先登录', false);
-            return;
-      }
+async function getUser() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+        console.log('请先登录', false);
+        return;
+  }
 
-      try {
-            const res = await fetch(baseUrl + 'getUser', {
-               headers: { 'Authorization': 'Bearer ' + token }
+  try {
+        const res = await fetch(baseUrl + 'getUser', {
+           headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+           console.log(`欢迎回来，${data.user.email}`);
+        } else {
+           console.log('获取用户信息失败', false);
+        }
+  } catch (error) {
+        console.log('网络错误，请检查连接', false);
+        console.error('获取用户错误:', error); 
+  }
+}
+```
+
+### 第三方登录
+
+目前只支持Github，Google, 以Github为例，只需要修改provider即可更换为google
+
+```javascript
+async function loginWithOAuth() {
+    try {
+        const res = await fetch(baseUrl + 'socialLogin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                provider: 'github', //修改provider即可切换google
+            })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.url) {
+            // 跳转到GitHub登录授权页面
+            window.location.href = data.url;
+        } else {
+             console.error(data.error || '登录失败，请重试');
+        }
+    } catch (error) {
+        console.error('GitHub登录错误:', error);
+    } 
+}
+
+```
+
+### 登出
+
+```javascript
+async function logout() {
+        try {
+            const res = await fetch(baseUrl + 'logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
             });
             const data = await res.json();
 
             if (res.ok) {
-               console.log(`欢迎回来，${data.user.email}`);
+                localStorage.removeItem('token');
+                showMessage('注销成功！');
             } else {
-               console.log('获取用户信息失败', false);
+                showMessage(data.error || '注销失败，请重试', false);
             }
-      } catch (error) {
-            console.log('网络错误，请检查连接', false);
-            console.error('获取用户错误:', error); 
-      }
-   }
+        } catch (error) {
+            showMessage('网络错误，请检查连接', false);
+            console.error('注销错误:', error);
+        }
+    }
 ```
+
