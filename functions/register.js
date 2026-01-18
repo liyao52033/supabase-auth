@@ -64,6 +64,13 @@ export async function onRequest(context) {
             })
         }
 
+        if (data?.user && data.user.identities?.length === 0) {
+            // 已存在用户
+            return new Response(JSON.stringify({
+                error: '该邮箱已注册，请直接登录'
+            }), { status: 409 })
+        }
+
         return new Response(JSON.stringify(data), {
             status: 200,
             headers: {
