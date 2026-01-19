@@ -1,4 +1,5 @@
 import { jsonPostRequestHandler } from '../supabase/request.js'
+import { setCookie } from '../supabase/cors.js'
 
 // 社交登录接口 - 只包含核心业务逻辑
 export const onRequest = jsonPostRequestHandler(async ({ requestBody, supabase, allowOrigin }) => {
@@ -45,12 +46,11 @@ export const onRequest = jsonPostRequestHandler(async ({ requestBody, supabase, 
         })
     }
 
+    // 设置Cookie
+    const headers = setCookie(allowOrigin, data.session.refresh_token);
+
     return new Response(JSON.stringify(data), {
         status: 200,
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': allowOrigin,
-            'Access-Control-Allow-Credentials': 'true',
-        }
+        headers: headers
     })
 });

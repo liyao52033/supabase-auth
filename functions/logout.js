@@ -1,4 +1,5 @@
 import { postRequestHandler } from '../supabase/request.js'
+import { setCookie } from '../supabase/cors.js'
 
 // 登出接口 - 只包含核心业务逻辑
 export const onRequest = postRequestHandler(async ({ supabase, allowOrigin }) => {
@@ -16,12 +17,11 @@ export const onRequest = postRequestHandler(async ({ supabase, allowOrigin }) =>
         })
     }
 
+    // 设置Cookie
+    const headers = setCookie(allowOrigin, '');
+
     return new Response(JSON.stringify({ message: 'Logged out successfully' }), {
         status: 200,
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': allowOrigin,
-            'Access-Control-Allow-Credentials': 'true',
-        }
+        headers: headers
     })
 });

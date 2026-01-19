@@ -1,7 +1,7 @@
 import { jsonPostRequestHandler } from '../supabase/request.js'
 
 // 注册接口 - 只包含核心业务逻辑
-export const onRequest = jsonPostRequestHandler(async ({ requestBody, supabase, allowOrigin, request }) => {
+export const onRequest = jsonPostRequestHandler(async ({ requestBody, supabase, allowOrigin }) => {
     const { email, password } = requestBody;
 
     // 从请求头获取origin或使用环境变量中的重定向URL
