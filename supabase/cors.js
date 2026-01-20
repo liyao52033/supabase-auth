@@ -25,8 +25,14 @@ export function corsMiddleware(request) {
 }
 
 
-// 设置Cookie
-export function setCookie(allowOrigin, refreshToken) {
+/**
+ * 设置Cookie
+ * @param {string} allowOrigin - 允许的Origin
+ * @param {object} cookies - 包含accessToken和refreshToken的对象
+ * @param {boolean} expires - 是否设置过期时间
+ * @returns {Headers} - 包含Set-Cookie头的Headers对象
+ */
+export function setCookie(allowOrigin, { refreshToken, accessToken }, expires = false) {
     const headers = new Headers({
         'Content-Type': 'application/json',
         // 必须是具体的源,不能是 *
@@ -42,24 +48,54 @@ export function setCookie(allowOrigin, refreshToken) {
     });
 
     const isLocal = allowOrigin.includes('localhost');
-
-    const cookieParts = [
-        `refreshToken=${refreshToken}`,
+    const cookieOptions = [
         'HttpOnly',
         'Path=/',
-        `Max-Age=${30 * 24 * 60 * 60}`,
     ];
 
     if (!isLocal) {
-        cookieParts.push('Secure');
-        cookieParts.push('SameSite=Strict');
+        cookieOptions.push('Secure');
+        cookieOptions.push('SameSite=Strict');
         // 确保 Domain 正确,使用 . 前缀可以覆盖主域名和子域名
-        cookieParts.push('Domain=.xiaoying.org.cn'); // 改成你的实际域名
-    } else {
-        cookieParts.push('SameSite=Lax');
+        cookieOptions.push('Domain=.xiaoying.org.cn'); // 改成你的实际域名
+    }  else {
+        cookieOptions.push('SameSite=Lax');
     }
 
-    headers.append('Set-Cookie', cookieParts.join('; '));
+    // 设置expires
+    if (expires) {
+        cookieOptions.push('Max-Age=1');
+    } else {
+        cookieOptions.push(`Max-Age=${30 * 24 * 60 * 60}`);
+    }
+
+    // 设置refreshToken cookie
+    const refreshTokenCookie = [
+        `refreshToken=${refreshToken}`,
+        ...cookieOptions
+    ].join('; ');
+    headers.append('Set-Cookie', refreshTokenCookie);
+
+    // 设置accessToken cookie
+    const accessTokenCookie = [
+        `accessToken=${accessToken}`,
+        ...cookieOptions
+    ].join('; ');
+    headers.append('Set-Cookie', accessTokenCookie);
+
     return headers;
 }
 
+// 从Cookie中提取指定名称的值
+export const getCookieValue = (cookieHeader, cookieName) => {
+    if (!cookieHeader) return null;
+
+    const cookies = cookieHeader.split('; ');
+    for (const cookie of cookies) {
+        const [name, value] = cookie.split('=');
+        if (name === cookieName) {
+            return decodeURIComponent(value);
+        }
+    }
+    return null;
+};

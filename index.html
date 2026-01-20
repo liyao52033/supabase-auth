@@ -305,7 +305,8 @@
                 getUserBtn.disabled = true;
 
                 const res = await fetch(baseUrl + 'getUser', {
-                    headers: { 'Authorization': 'Bearer ' + token }
+                  //  headers: { 'Authorization': 'Bearer ' + token }
+                  credentials: 'include',
                 });
                 const data = await res.json();
 

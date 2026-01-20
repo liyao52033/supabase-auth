@@ -1,19 +1,6 @@
 import { postRequestHandler } from '../supabase/request.js'
-import { setCookie } from '../supabase/cors.js'
+import { setCookie, getCookieValue } from '../supabase/cors.js'
 
-// 从Cookie中提取指定名称的值
-const getCookieValue = (cookieHeader, cookieName) => {
-    if (!cookieHeader) return null;
-
-    const cookies = cookieHeader.split('; ');
-    for (const cookie of cookies) {
-        const [name, value] = cookie.split('=');
-        if (name === cookieName) {
-            return decodeURIComponent(value);
-        }
-    }
-    return null;
-};
 
 // 刷新token接口
 export const onRequest = postRequestHandler(async ({ request, supabase, allowOrigin }) => {
@@ -59,8 +46,11 @@ export const onRequest = postRequestHandler(async ({ request, supabase, allowOri
 
         const { access_token, refresh_token } = data.session;
 
-        // 更新refreshToken cookie
-        const headers = setCookie(allowOrigin, refresh_token);
+        // 更新cookie
+        const headers = setCookie(allowOrigin, {
+            refreshToken: refresh_token,
+            accessToken: access_token,  
+        });
 
         // 返回新的access_token
         return new Response(

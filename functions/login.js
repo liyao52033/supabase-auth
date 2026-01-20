@@ -40,7 +40,10 @@ export const onRequest = jsonPostRequestHandler(async ({ requestBody, supabase, 
     }
     
     // 设置Cookie
-    const headers = setCookie(allowOrigin, data.session.refresh_token);
+    const headers = setCookie(allowOrigin, {
+        refreshToken: data.session.refresh_token,
+        accessToken: data.session.access_token
+    });
 
     // 成功响应
     return new Response(

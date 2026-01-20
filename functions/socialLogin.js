@@ -47,7 +47,10 @@ export const onRequest = jsonPostRequestHandler(async ({ requestBody, supabase, 
     }
 
     // 设置Cookie
-    const headers = setCookie(allowOrigin, data.session.refresh_token);
+    const headers = setCookie(allowOrigin, {
+        accessToken: data.session.access_token,
+        refreshToken: data.session.refresh_token,
+    });
 
     return new Response(JSON.stringify(data), {
         status: 200,

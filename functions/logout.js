@@ -18,7 +18,10 @@ export const onRequest = postRequestHandler(async ({ supabase, allowOrigin }) =>
     }
 
     // 设置Cookie
-    const headers = setCookie(allowOrigin, '');
+    const headers = setCookie(allowOrigin, {
+        accessToken: '',
+        refreshToken: '',
+    }, true);
 
     return new Response(JSON.stringify({ message: 'Logged out successfully' }), {
         status: 200,
