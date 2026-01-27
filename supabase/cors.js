@@ -58,7 +58,7 @@ export function setCookie(allowOrigin, { refreshToken, accessToken }, expires = 
         cookieOptions.push('SameSite=Strict');
         // 确保 Domain 正确,使用 . 前缀可以覆盖主域名和子域名
         cookieOptions.push('Domain=.xiaoying.org.cn'); // 改成你的实际域名
-    }  else {
+    } else {
         cookieOptions.push('SameSite=Lax');
     }
 

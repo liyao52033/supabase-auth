@@ -4,7 +4,7 @@
     "description": "Authentication API with Supabase for Tencent EdgeOne Pages",
     "scripts": {
         "init": "edgeone pages init",
-        "deploy": "edgeone pages deploy -n supabase"
+        "deploy": "rm -rf .edgeone && edgeone pages deploy -n supabase"
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.39.0"
