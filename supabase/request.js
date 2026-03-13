@@ -17,7 +17,21 @@ export const requestHandler = (allowedMethods, handler) => {
         if (request.method === 'OPTIONS') {
             return allowOrigin
         }
-        
+
+        // 验证接口访问密码
+        const correctPassword = typeof env !== 'undefined' ? env.ACCESS_PASSWORD : null;
+        const reqPwd = request.headers.get('x-doc-password');
+        if(!reqPwd || reqPwd !== correctPassword){
+            return new Response(JSON.stringify({ error: '接口访问未授权：密码错误或未提供' }), {
+                status: 401,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': allowOrigin,
+                    'Access-Control-Allow-Credentials': 'true',
+                }
+            });
+        }
+
         // 验证请求方法
         if (!allowedMethods.includes(request.method)) {
             return new Response(JSON.stringify({ error: 'Method not allowed' }), {

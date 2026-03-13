@@ -99,7 +99,7 @@
             border-radius: 8px;
             text-align: center;
             font-weight: 500;
-            z-index: 1000;
+            z-index: 10000;
             opacity: 0;
             transition: opacity 0.3s ease, transform 0.3s ease;
             pointer-events: none;
@@ -120,10 +120,154 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+
+        /* Password Login Overlay Styles */
+        #docLoginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .doc-icon {
+            width: 56px;
+            height: 56px;
+            background: #ff7597;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .doc-icon svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+
+        .doc-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 16px;
+        }
+
+        .doc-desc {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 32px;
+        }
+
+        .doc-form {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .doc-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .doc-form input {
+            width: 100%;
+            padding: 10px 40px 10px 16px;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            color: #333;
+            height: 44px;
+            box-shadow: none;
+        }
+        
+        .doc-form input:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+            outline: none;
+        }
+
+        .doc-form .toggle-eye {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .doc-form button {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 24px;
+            font-size: 14px;
+            cursor: pointer;
+            height: 44px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .doc-form button:hover {
+            background: #7c3aed;
+            transform: none;
+        }
+        
+        .doc-footer {
+            position: absolute;
+            bottom: 30px;
+            font-size: 12px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
     </style>
 </head>
 
 <body>
+    <div id="docLoginOverlay">
+        <div class="doc-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 6C4 4.89543 4.89543 4 6 4H10.5M4 6V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H13L10.5 4M4 6H10.5M10.5 4H12.5L15 8H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 12H16M8 16H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="doc-title">supabase接口</div>
+        <div class="doc-desc">当前接口需要密码才可访问</div>
+        <div class="doc-form">
+            <div class="doc-input-wrapper">
+                <input type="password" id="docPwdInput" placeholder="请输入密码" onkeydown="if(event.key === 'Enter') verifyDocPwd()">
+                <div class="toggle-eye" onclick="toggleDocPwd()">
+                    <svg id="eyeIconOpen" style="display: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg id="eyeIconClosed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </div>
+            </div>
+            <button id="docSubmitBtn" onclick="verifyDocPwd()">访问接口</button>
+        </div>
+        <div class="doc-footer">
+            Built with <a href="https://cloud.tencent.com/document/product/1552/127369" target="_blank">edgeone pages</a>
+        </div>
+    </div>
     <div class="container">
         <h1>登录注册演示</h1>
         <div id="auth">
@@ -175,8 +319,77 @@
     </div>
 
     <script>
-        //  const baseUrl = 'https://ssl.xiaoying.org.cn/'; // 本地开发URL
-        const baseUrl = 'http://localhost:8088/';
+        function toggleDocPwd() {
+            const input = document.getElementById('docPwdInput');
+            const iconOpen = document.getElementById('eyeIconOpen');
+            const iconClosed = document.getElementById('eyeIconClosed');
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconOpen.style.display = 'block';
+                iconClosed.style.display = 'none';
+            } else {
+                input.type = 'password';
+                iconOpen.style.display = 'none';
+                iconClosed.style.display = 'block';
+            }
+        }
+
+        async function verifyDocPwd() {
+            const pwd = document.getElementById('docPwdInput').value;
+            if (!pwd) {
+                showMessage('请输入密码', false);
+                return;
+            }
+            
+            const btn = document.getElementById('docSubmitBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '验证中...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch(baseUrl + 'verifyPwd', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pwd })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success) {
+                        localStorage.setItem('docPwd', pwd);
+                        document.getElementById('docLoginOverlay').remove();
+                    }
+                } else {
+                    const data = await res.json();
+                    showMessage(data.error || '密码错误', false);
+                }
+            } catch (err) {
+                showMessage('网络错误', false);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+      const baseUrl = '/';
+
+        function getApiHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'x-doc-password': localStorage.getItem('docPwd') || ''
+            };
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedPwd = localStorage.getItem('docPwd');
+            if (savedPwd) {
+                const input = document.getElementById('docPwdInput');
+                if (input) {
+                    input.value = savedPwd;
+                    verifyDocPwd();
+                }
+            }
+        });
 
         // 移除地址栏中的token（如果有）
         if (window.location.hash.includes('access_token')) {
@@ -224,7 +437,7 @@
 
                 const res = await fetch(baseUrl + 'register', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getApiHeaders(),
                     body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();    
@@ -270,13 +483,12 @@
                 const res = await fetch(baseUrl + 'login', {
                     method: 'POST',
                     credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getApiHeaders(),
                     body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
 
                 if (res.ok && data.session) {
-                    localStorage.setItem('token', data.session.access_token);
                     showMessage('登录成功！');
                 } else {
                     showMessage(data.error || '登录失败，账号或密码错误', false);
@@ -306,8 +518,8 @@
                 getUserBtn.disabled = true;
 
                 const res = await fetch(baseUrl + 'getUser', {
-                  //  headers: { 'Authorization': 'Bearer ' + token }
                   credentials: 'include',
+                  headers: getApiHeaders()
                 });
                 const data = await res.json();
 
@@ -331,7 +543,7 @@
             try {
                 const res = await fetch(baseUrl + 'socialLogin', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getApiHeaders(),
                     body: JSON.stringify({
                         provider
                     })
@@ -352,14 +564,14 @@
 
         // GitHub登录
         async function loginWithGithub() {
-           // await loginWithSocial('github');
-           showMessage('仅供演示登录GitHub账号');
+           await loginWithSocial('github');
+           //showMessage('仅供演示登录GitHub账号');
         }
 
         // Google登录
         async function loginWithGoogle() {
-           // await loginWithSocial('google');
-           showMessage('仅供演示登录Google账号');
+            await loginWithSocial('google');
+          // showMessage('仅供演示登录Google账号');
         }
 
         // 注销函数
@@ -367,7 +579,7 @@
             try {
                 const res = await fetch(baseUrl + 'logout', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getApiHeaders(),
                     body: JSON.stringify({})
                 });
                 const data = await res.json();

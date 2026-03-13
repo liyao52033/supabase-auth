@@ -2,6 +2,7 @@
 /package-lock.json
 # Tencent Cloud EdgeOne
 .env
+.idea
 .edgeone/*
 !.edgeone/project.json
 .tef_dist/*
