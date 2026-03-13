@@ -319,6 +319,9 @@
     </div>
 
     <script>
+
+        const baseUrl = '/';
+
         function toggleDocPwd() {
             const input = document.getElementById('docPwdInput');
             const iconOpen = document.getElementById('eyeIconOpen');
@@ -370,8 +373,6 @@
                 btn.disabled = false;
             }
         }
-
-      const baseUrl = '/';
 
         function getApiHeaders() {
             return {

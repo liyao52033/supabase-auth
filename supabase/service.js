@@ -9,12 +9,13 @@ import { createClient } from '@supabase/supabase-js'
 export const getSupabaseConfig = () => {
     const supabaseUrl = env.SUPABASE_URL
     const supabaseKey = env.SUPABASE_ANON_KEY
+    const accessPassword = env.ACCESS_PASSWORD
     
-    if (!supabaseUrl || !supabaseKey) {
+    if (!supabaseUrl || !supabaseKey || !accessPassword) {
         throw new Error('Supabase configuration missing')
     }
     
-    return { supabaseUrl, supabaseKey }
+    return { supabaseUrl, supabaseKey, accessPassword }
 }
 
 /**
