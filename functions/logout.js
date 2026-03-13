@@ -21,6 +21,7 @@ export const onRequest = postRequestHandler(async ({ supabase, allowOrigin }) =>
     const headers = setCookie(allowOrigin, {
         accessToken: '',
         refreshToken: '',
+        xDocPassword: ''
     }, true);
 
     return new Response(JSON.stringify({ message: 'Logged out successfully' }), {

@@ -10,12 +10,13 @@ export const getSupabaseConfig = () => {
     const supabaseUrl = env.SUPABASE_URL
     const supabaseKey = env.SUPABASE_ANON_KEY
     const accessPassword = env.ACCESS_PASSWORD
+    const maindomain = env.MAIN_DOMAIN
     
-    if (!supabaseUrl || !supabaseKey || !accessPassword) {
+    if (!supabaseUrl || !supabaseKey || !accessPassword || !maindomain) {
         throw new Error('Supabase configuration missing')
     }
     
-    return { supabaseUrl, supabaseKey, accessPassword }
+    return { supabaseUrl, supabaseKey, accessPassword, maindomain }
 }
 
 /**

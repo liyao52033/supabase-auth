@@ -352,6 +352,7 @@
             try {
                 const res = await fetch(baseUrl + 'verifyPwd', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password: pwd })
                 });
@@ -359,7 +360,6 @@
                 if (res.ok) {
                     const data = await res.json();
                     if (data.success) {
-                        localStorage.setItem('docPwd', pwd);
                         document.getElementById('docLoginOverlay').remove();
                     }
                 } else {
@@ -376,19 +376,14 @@
 
         function getApiHeaders() {
             return {
-                'Content-Type': 'application/json',
-                'x-doc-password': localStorage.getItem('docPwd') || ''
+                'Content-Type': 'application/json'
             };
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const savedPwd = localStorage.getItem('docPwd');
-            if (savedPwd) {
-                const input = document.getElementById('docPwdInput');
-                if (input) {
-                    input.value = savedPwd;
-                    verifyDocPwd();
-                }
+            if (document.cookie.includes('x-doc-password=')) {
+                const overlay = document.getElementById('docLoginOverlay');
+                if (overlay) overlay.remove();
             }
         });
 
@@ -438,6 +433,7 @@
 
                 const res = await fetch(baseUrl + 'register', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: getApiHeaders(),
                     body: JSON.stringify({ email, password })
                 });
@@ -505,12 +501,7 @@
         }
 
         async function getUser() {
-            const token = localStorage.getItem('token');
             const getUserBtn = document.getElementById('getUserBtn');
-            if (!token) {
-                showMessage('请先登录', false);
-                return;
-            }
 
             try {
                 // 保存原始文本并设置加载状态
@@ -544,6 +535,7 @@
             try {
                 const res = await fetch(baseUrl + 'socialLogin', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: getApiHeaders(),
                     body: JSON.stringify({
                         provider
@@ -580,6 +572,7 @@
             try {
                 const res = await fetch(baseUrl + 'logout', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: getApiHeaders(),
                     body: JSON.stringify({})
                 });

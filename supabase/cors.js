@@ -1,3 +1,6 @@
+import { getSupabaseConfig } from './service.js'
+
+
 // CORS中间件配置
 export function corsMiddleware(request) {
     const origin = request.headers.get('Origin') || request.headers.get('Referer')?.split('/').slice(0, 3).join('/') || '*';
@@ -32,7 +35,7 @@ export function corsMiddleware(request) {
  * @param {boolean} expires - 是否设置过期时间
  * @returns {Headers} - 包含Set-Cookie头的Headers对象
  */
-export function setCookie(allowOrigin, { refreshToken, accessToken }, expires = false) {
+export function setCookie(allowOrigin, { refreshToken, accessToken, xDocPassword }, expires = false) {
     const headers = new Headers({
         'Content-Type': 'application/json',
         // 必须是具体的源,不能是 *
@@ -57,7 +60,7 @@ export function setCookie(allowOrigin, { refreshToken, accessToken }, expires = 
         cookieOptions.push('Secure');
         cookieOptions.push('SameSite=Strict');
         // 确保 Domain 正确,使用 . 前缀可以覆盖主域名和子域名
-        cookieOptions.push('Domain=.xiaoying.org.cn'); // 改成你的实际域名
+        cookieOptions.push('Domain=.' + getSupabaseConfig().maindomain);
     } else {
         cookieOptions.push('SameSite=Lax');
     }
@@ -82,6 +85,13 @@ export function setCookie(allowOrigin, { refreshToken, accessToken }, expires = 
         ...cookieOptions
     ].join('; ');
     headers.append('Set-Cookie', accessTokenCookie);
+
+    // 设置xDocPassword cookie
+    const xDocPasswordCookie = [
+        `x-doc-password=${xDocPassword}`,
+        ...cookieOptions
+    ].join('; ');
+    headers.append('Set-Cookie', xDocPasswordCookie);
 
     return headers;
 }
