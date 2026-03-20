@@ -361,7 +361,8 @@
                     method: 'POST',
                     credentials: 'include',
                     body: JSON.stringify({
-                        provider
+                        provider,
+                        redirectUrl: '/home.html'
                     })
                 });
                 const data = await res.json();

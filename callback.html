@@ -12,9 +12,12 @@
         const access_token = urlParams.get('access_token');
         const refresh_token = urlParams.get('refresh_token');
 
+        // 获取 redirectUrl 参数（登录成功后直接跳转到目标页面）
+        const finalRedirectUrl = new URLSearchParams(window.location.search).get('redirectUrl');
+
         // 验证 tokens 存在
         if (!access_token || !refresh_token) {
-            document.body.innerHTML = `<h1>认证失败：缺少 tokens</h1>`;
+             document.body.innerHTML = `<h1>认证失败：缺少 tokens</h1>`;
         } else {
             async function setTokens() {
                 try {
@@ -31,12 +34,13 @@
                     });
 
                     const data = await response.json();
-                    if (data.success) {
-                        // 认证成功，跳转到主页
-                        window.location.replace(window.location.origin);
+                    if (!data.success) {
+                       document.body.innerHTML = `<h1>设置 token 失败：${data.error}</h1>`;
                     } else {
-                        document.body.innerHTML = `<h1>设置 token 失败：${data.error}</h1>`;
+                        // 成功，跳转到目标页面
+                       window.location.href = `${finalRedirectUrl}`;
                     }
+                  
                 } catch (error) {
                     document.body.innerHTML = `<h1>设置 token 失败：${error.message}</h1>`;
                 }
