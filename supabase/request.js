@@ -1,6 +1,6 @@
 // 请求处理中间件 - 统一处理请求的通用逻辑
-import { corsMiddleware, getCookieValue } from './cors.js'
-import { createSupabaseClient, getSupabaseConfig, parseJsonBody } from './service.js'
+import { corsMiddleware } from './cors.js'
+import { createSupabaseClient, parseJsonBody } from './service.js'
 
 /**
  * 基础请求处理中间件
@@ -16,33 +16,6 @@ export const requestHandler = (allowedMethods, handler) => {
         const allowOrigin = corsMiddleware(request)
         if (request.method === 'OPTIONS') {
             return allowOrigin
-        }
-
-        const cookieHeader = request.headers.get('Cookie');
-        let reqPwd = null;
-        if (cookieHeader) {
-            reqPwd = getCookieValue(cookieHeader, 'x-doc-password');
-        }
-
-        const whiteList = ['verifyPwd', 'login', 'socialLogin']
-
-        // 验证接口访问密码
-        if(!whiteList.some(item => request.url.includes(item))){
-            const correctPassword = getSupabaseConfig().accessPassword
-          
-            if(!reqPwd || reqPwd !== correctPassword){
-                return new Response(JSON.stringify({ error: '接口访问未授权：密码错误或未提供' }), {
-                    status: 401,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': allowOrigin,
-                        'Access-Control-Allow-Credentials': 'true',
-                    }
-                });
-            }
-
-           
-            
         }
 
         // 验证请求方法

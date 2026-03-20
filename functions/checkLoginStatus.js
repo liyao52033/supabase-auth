@@ -1,18 +1,22 @@
-import { setCookie } from '../supabase/cors.js';
-import { jsonPostRequestHandler } from '../supabase/request.js'
+import { getRequestHandler } from '../supabase/request.js'
 import { getSupabaseConfig } from '../supabase/service.js'
+import { getCookieValue } from '../supabase/cors.js'
 
-export const onRequest = jsonPostRequestHandler(async ({ requestBody, allowOrigin }) => {
-    const { password } = requestBody;
+
+export const onRequest = getRequestHandler(async ({ request, allowOrigin }) => {
     
-    // getSupabaseConfig returns the config loaded from env
+    const cookieHeader = request.headers.get('Cookie');
+    const password = getCookieValue(cookieHeader, 'x-doc-password');
+    
+    // getSupabaseConfig returns the config loaded from env 
     const correctPassword = getSupabaseConfig().accessPassword;
     
-    if (!correctPassword) {
+    
+    if (password === correctPassword) {
         return new Response(
-            JSON.stringify({ error: 'System not configured properly' }),
+            JSON.stringify({ success: true }),
             { 
-                status: 500, 
+                status: 200, 
                 headers: { 
                     'Content-Type': 'application/json', 
                     'Access-Control-Allow-Origin': allowOrigin,
@@ -20,20 +24,9 @@ export const onRequest = jsonPostRequestHandler(async ({ requestBody, allowOrigi
                 } 
             }
         );
-    }
-    
-    if (password === correctPassword) {
-       const headers = setCookie(allowOrigin, { xDocPassword: password });
-        return new Response(
-            JSON.stringify({ success: true }),
-            { 
-                status: 200, 
-                headers
-            }
-        );
     } else {
         return new Response(
-            JSON.stringify({ error: '密码错误' }),
+            JSON.stringify({ error: '登录已过期' }),
             { 
                 status: 401, 
                 headers: { 

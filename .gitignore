@@ -3,6 +3,7 @@
 # Tencent Cloud EdgeOne
 .env
 .idea
+.codebuddy
 .edgeone/*
 !.edgeone/project.json
 .tef_dist/*

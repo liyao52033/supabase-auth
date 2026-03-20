@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OAuth Callback</title>
+</head>
+<body>
+    <script>
+        // 前端获取 hash 中的 tokens
+        const hash = window.location.hash.substring(1); // 去掉 #
+        const urlParams = new URLSearchParams(hash);
+        const access_token = urlParams.get('access_token');
+        const refresh_token = urlParams.get('refresh_token');
+
+        // 验证 tokens 存在
+        if (!access_token || !refresh_token) {
+            document.body.innerHTML = `<h1>认证失败：缺少 tokens</h1>`;
+        } else {
+            async function setTokens() {
+                try {
+                    const response = await fetch('/auth/callback', { 
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include', 
+                        body: JSON.stringify({
+                            access_token: access_token,
+                            refresh_token: refresh_token
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        // 认证成功，跳转到主页
+                        window.location.replace(window.location.origin);
+                    } else {
+                        document.body.innerHTML = `<h1>设置 token 失败：${data.error}</h1>`;
+                    }
+                } catch (error) {
+                    document.body.innerHTML = `<h1>设置 token 失败：${error.message}</h1>`;
+                }
+            }
+
+            // 执行设置 token
+            setTokens();
+        }
+
+      
+    </script>
+</body>
+</html>

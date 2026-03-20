@@ -73,25 +73,34 @@ export function setCookie(allowOrigin, { refreshToken, accessToken, xDocPassword
     }
 
     // 设置refreshToken cookie
-    const refreshTokenCookie = [
-        `refreshToken=${refreshToken}`,
-        ...cookieOptions
-    ].join('; ');
-    headers.append('Set-Cookie', refreshTokenCookie);
+    if(refreshToken){
+        const refreshTokenCookie = [
+            `refreshToken=${refreshToken}`,
+            ...cookieOptions
+        ].join('; ');
+        headers.append('Set-Cookie', refreshTokenCookie);
+    }
+   
 
     // 设置accessToken cookie
-    const accessTokenCookie = [
-        `accessToken=${accessToken}`,
-        ...cookieOptions
-    ].join('; ');
-    headers.append('Set-Cookie', accessTokenCookie);
+    if(accessToken){
+        const accessTokenCookie = [
+            `accessToken=${accessToken}`,
+            ...cookieOptions
+        ].join('; ');
+        headers.append('Set-Cookie', accessTokenCookie);
+    }
+
 
     // 设置xDocPassword cookie
-    const xDocPasswordCookie = [
+    if(xDocPassword){
+         const xDocPasswordCookie = [
         `x-doc-password=${xDocPassword}`,
         ...cookieOptions
-    ].join('; ');
-    headers.append('Set-Cookie', xDocPasswordCookie);
+        ].join('; ');
+        headers.append('Set-Cookie', xDocPasswordCookie);
+    }
+   
 
     return headers;
 }
