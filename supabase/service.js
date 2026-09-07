@@ -30,6 +30,7 @@ export const createSupabaseClient = () => {
             persistSession: false
         },
         realtime: {
+            transport: class NoopWebSocket {},
             params: {
                 eventsPerSecond: 0
             }
