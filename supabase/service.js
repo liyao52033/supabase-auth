@@ -25,7 +25,16 @@ export const getSupabaseConfig = () => {
  */
 export const createSupabaseClient = () => {
     const { supabaseUrl, supabaseKey } = getSupabaseConfig()
-    return createClient(supabaseUrl, supabaseKey)
+    return createClient(supabaseUrl, supabaseKey, {
+        auth: {
+            persistSession: false
+        },
+        realtime: {
+            params: {
+                eventsPerSecond: 0
+            }
+        }
+    })
 }
 
 /**
