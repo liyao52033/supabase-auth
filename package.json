@@ -8,6 +8,6 @@
         "deploy": "npm run clean && edgeone makers deploy -n supabase"
     },
     "dependencies": {
-        "@supabase/supabase-js": "^2.109.0"
+        "@supabase/supabase-js": "^2.80.0"
     }
 }
