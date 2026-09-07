@@ -171,7 +171,8 @@ async function loginWithSocial(provider) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-              provider
+              provider,
+              redirectUrl: window.location.href
           })
       });
       const data = await res.json();
